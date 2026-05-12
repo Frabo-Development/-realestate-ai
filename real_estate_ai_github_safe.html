@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Estate AI Analyst</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:     #0a2540;
+  --navy-lt:  #1a3a5c;
+  --blue:     #0066cc;
+  --blue-lt:  #3385d6;
+  --cyan:     #00d4ff;
+  --green:    #00c853;
+  --red:      #e53935;
+  --orange:   #ff6f00;
+  --gray-50:  #f7f9fc;
+  --gray-100: #e3e8ef;
+  --gray-200: #c1c9d2;
+  --gray-600: #6b7280;
+  --gray-900: #1a1f36;
+  --white:    #ffffff;
+  --shadow:   0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg:0 8px 24px rgba(0,0,0,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--gray-50);color:var(--gray-900);font-family:'IBM Plex Sans',sans-serif;font-size:14px}
+body{display:flex;flex-direction:column}
+
+/* HEADER */
+.hdr{
+  flex-shrink:0;display:flex;align-items:center;gap:16px;
+  padding:14px 24px;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-lt) 100%);
+  border-bottom:3px solid var(--blue);
+  box-shadow:var(--shadow-lg);
+}
+.hdr-logo{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--blue) 0%,var(--cyan) 100%);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 4px 12px rgba(0,102,204,0.4);flex-shrink:0;
+}
+.hdr-title{font-size:15px;font-weight:700;color:var(--white);letter-spacing:-0.3px}
+.hdr-sub{font-size:10px;color:rgba(255,255,255,.65);margin-top:1px;letter-spacing:.4px}
+.hdr-right{margin-left:auto}
+.live{
+  display:flex;align-items:center;gap:6px;
+  background:var(--green);color:var(--white);
+  padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;
+}
+.dot{width:7px;height:7px;background:var(--white);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* KPI STRIP */
+.kstrip{
+  flex-shrink:0;display:flex;gap:10px;padding:12px 24px;
+  background:var(--white);border-bottom:1px solid var(--gray-100);
+  overflow-x:auto;box-shadow:var(--shadow);
+}
+.kstrip::-webkit-scrollbar{height:3px}
+.kstrip::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:2px}
+.kc{
+  flex-shrink:0;background:var(--white);border-radius:8px;padding:8px 14px;
+  border-left:3px solid var(--blue);box-shadow:var(--shadow);
+  transition:transform .15s;cursor:default;
+}
+.kc:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+.kc.c-green{border-color:var(--green)}.kc.c-red{border-color:var(--red)}
+.kc.c-orange{border-color:var(--orange)}.kc.c-cyan{border-color:var(--cyan)}
+.kv{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--navy)}
+.kl{font-size:9px;color:var(--gray-600);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+
+/* TABS */
+.tabs{
+  flex-shrink:0;display:flex;gap:6px;
+  padding:12px 24px;background:var(--navy);overflow-x:auto;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  padding:8px 16px;border-radius:8px;border:none;cursor:pointer;
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);
+  font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;
+  white-space:nowrap;transition:all .15s;
+}
+.tab:hover{background:rgba(255,255,255,.14);color:var(--white)}
+.tab.on{background:var(--white);color:var(--navy);font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+
+/* SUGGESTIONS */
+.sugs{
+  flex-shrink:0;display:flex;gap:8px;padding:10px 24px;
+  background:var(--gray-50);border-bottom:1px solid var(--gray-100);overflow-x:auto;
+}
+.sugs::-webkit-scrollbar{display:none}
+.sug{
+  flex-shrink:0;background:var(--white);
+  border:1px solid var(--gray-100);border-radius:20px;
+  padding:6px 14px;font-size:11px;color:var(--blue);
+  cursor:pointer;white-space:nowrap;transition:all .15s;
+  font-family:'IBM Plex Sans',sans-serif;font-weight:500;
+  box-shadow:var(--shadow);
+}
+.sug:hover{background:var(--blue);color:var(--white);border-color:var(--blue);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+
+/* CHAT */
+.chat{flex:1;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:14px;background:var(--gray-50)}
+.chat::-webkit-scrollbar{width:4px}
+.chat::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:2px}
+
+/* MESSAGES */
+.msg{display:flex;gap:10px;animation:fu .3s ease both}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.u{flex-direction:row-reverse}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-top:2px}
+.av.ai{background:linear-gradient(135deg,var(--blue) 0%,var(--cyan) 100%);box-shadow:0 4px 10px rgba(0,102,204,.3)}
+.av.u{background:var(--navy);color:var(--white)}
+.mc{flex:1;min-width:0}.msg.u .mc{display:flex;flex-direction:column;align-items:flex-end}
+.bbl{
+  max-width:88%;background:var(--white);
+  border:1px solid var(--gray-100);
+  border-top:3px solid var(--blue);
+  border-radius:0 12px 12px 12px;
+  padding:12px 16px;font-size:13px;line-height:1.65;color:var(--gray-900);
+  box-shadow:var(--shadow);
+}
+.msg.u .bbl{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-lt) 100%);
+  color:var(--white);border-top-color:var(--cyan);
+  border-radius:12px 0 12px 12px;
+}
+.mt{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--gray-600);margin-top:4px;letter-spacing:.3px}
+
+/* REC CARDS */
+.recs{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.rc{
+  background:var(--white);border:1px solid var(--gray-100);
+  border-top:3px solid var(--blue);border-radius:12px;
+  overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .15s;
+}
+.rc:hover{box-shadow:var(--shadow-lg)}
+.rt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--gray-100);background:var(--gray-50)}
+.ri{font-size:18px}
+.rcat{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.rpri{margin-left:auto;padding:3px 10px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.5px}
+.pc{background:#ffebee;color:#c62828}
+.ph{background:#fff3e0;color:#e65100}
+.pm{background:#fff8e1;color:#f57f17}
+.pl{background:#e8f5e9;color:#2e7d32}
+.rb{display:grid;grid-template-columns:1fr 1fr}
+.rcol{padding:10px 14px}.rcol+.rcol{border-left:1px solid var(--gray-100)}
+.rcl{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gray-600);margin-bottom:5px}
+.rtl{font-size:13px;font-weight:600;color:var(--gray-900);margin-bottom:4px}
+.rct{font-size:12px;color:var(--gray-600);line-height:1.55}
+.rimp{padding:7px 14px;background:rgba(0,200,83,.06);border-top:1px solid rgba(0,200,83,.15);font-family:'IBM Plex Mono',monospace;font-size:10px;color:#1b5e20;font-weight:600}
+
+/* TYPING */
+.typing{display:flex;gap:10px}
+.tb{background:var(--white);border:1px solid var(--gray-100);border-top:3px solid var(--blue);border-radius:0 12px 12px 12px;padding:12px 16px;box-shadow:var(--shadow)}
+.td-row{display:flex;align-items:center;gap:5px}
+.td{width:7px;height:7px;background:var(--blue);border-radius:50%;opacity:.5;animation:bo .9s infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes bo{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-5px);opacity:1}}
+
+/* INPUT BAR */
+.ibar{flex-shrink:0;padding:12px 24px;background:var(--white);border-top:1px solid var(--gray-100);box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+.iw{
+  display:flex;align-items:center;gap:10px;
+  background:var(--gray-50);
+  border:1.5px solid var(--gray-200);border-radius:10px;padding:8px 12px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.iw:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,102,204,.1)}
+#inp{flex:1;background:none;border:none;outline:none;color:var(--gray-900);font-size:13px;font-family:'IBM Plex Sans',sans-serif}
+#inp::placeholder{color:var(--gray-200)}
+.sp{width:14px;height:14px;border:2px solid var(--gray-200);border-top-color:var(--blue);border-radius:50%;animation:spin .65s linear infinite;display:none}
+.sp.on{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sbtn{
+  height:34px;padding:0 18px;background:var(--blue);border:none;
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s;flex-shrink:0;
+  font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:600;color:var(--white);gap:6px;
+}
+.sbtn:hover{background:var(--blue-lt);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,102,204,.3)}
+.sbtn:disabled{background:var(--gray-200);cursor:not-allowed;transform:none;box-shadow:none;color:var(--gray-600)}
+.sbtn svg{width:13px;height:13px;fill:var(--white)}
+</style>
+</head>
+<body>
+
+<!-- API Key Dialog -->
+<div id="key-overlay" style="position:fixed;inset:0;background:rgba(10,37,64,0.92);z-index:9999;display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:32px;max-width:420px;width:90%;box-shadow:0 24px 48px rgba(0,0,0,0.3)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,#0066cc,#00d4ff);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px">🧠</div>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:18px;font-weight:700;color:#0a2540">Real Estate AI Analyst</div>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:#6b7280;margin-top:4px">Enter your Groq API key to start</div>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Groq API Key</div>
+      <input id="key-input" type="password" placeholder="gsk_..." 
+        style="width:100%;padding:10px 14px;border:1.5px solid #e3e8ef;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#0a2540;outline:none;transition:border-color .2s"
+        onfocus="this.style.borderColor='#0066cc'"
+        onblur="this.style.borderColor='#e3e8ef'"
+        onkeydown="if(event.key==='Enter')submitKey()"/>
+    </div>
+    <button onclick="submitKey()" 
+      style="width:100%;padding:12px;background:#0066cc;color:#fff;border:none;border-radius:8px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s"
+      onmouseover="this.style.background='#3385d6'"
+      onmouseout="this.style.background='#0066cc'">
+      Start AI Analyst →
+    </button>
+    <div style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:#6b7280;text-align:center;margin-top:12px">
+      Get free key at console.groq.com · Key stored in browser memory only
+    </div>
+  </div>
+</div>
+
+<script>
+function submitKey(){
+  const key = document.getElementById('key-input').value.trim();
+  if(!key || !key.startsWith('gsk_')){
+    document.getElementById('key-input').style.borderColor='#e53935';
+    document.getElementById('key-input').placeholder='Must start with gsk_...';
+    return;
+  }
+  sessionStorage.setItem('groq_key',key);
+  document.getElementById('key-overlay').style.display='none';
+}
+// Auto-hide if key already in session
+if(sessionStorage.getItem('groq_key')){
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('key-overlay').style.display='none';
+  });
+}
+</script>
+
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">🧠</div>
+  <div>
+    <div class="hdr-title">Real Estate AI Analyst</div>
+    <div class="hdr-sub">Microsoft Fabric Intelligence Platform</div>
+  </div>
+  <div class="hdr-right">
+    <div class="live"><div class="dot"></div>Live KPIs</div>
+  </div>
+</div>
+
+<!-- KPI STRIP -->
+<div class="kstrip">
+  <div class="kc"><div class="kv">EGP 95.3M</div><div class="kl">Contracted YTD</div></div>
+  <div class="kc c-green"><div class="kv">74.1%</div><div class="kl">Collection Rate</div></div>
+  <div class="kc c-red"><div class="kv">EGP 20.3M</div><div class="kl">Total Overdue</div></div>
+  <div class="kc c-cyan"><div class="kv">60%</div><div class="kl">Occupancy</div></div>
+  <div class="kc c-orange"><div class="kv">43 units</div><div class="kl">Available</div></div>
+  <div class="kc"><div class="kv">63%</div><div class="kl">Construction</div></div>
+  <div class="kc c-red"><div class="kv">EGP 4.2M</div><div class="kl">90+ Days Overdue</div></div>
+  <div class="kc c-green"><div class="kv">5.3/mo</div><div class="kl">Sales Velocity</div></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" onclick="setMode('recommend',this)">💡 Recommendations</button>
+  <button class="tab" onclick="setMode('analysis',this)">📊 Deep Analysis</button>
+  <button class="tab" onclick="setMode('action',this)">⚡ Action Plan</button>
+  <button class="tab" onclick="setMode('risk',this)">⚠️ Risk Assessment</button>
+  <button class="tab" onclick="setMode('forecast',this)">📈 Forecast</button>
+</div>
+
+<!-- SUGGESTIONS -->
+<div class="sugs">
+  <button class="sug" onclick="askWithMode('recommend','Analyze the full portfolio and give me the top 6 most important recommendations with specific EGP impact','recommend')">📊 Full analysis</button>
+  <button class="sug" onclick="askWithMode('collections','How do we improve the collection rate from 74.1% to 80%? Give specific steps for each aging bucket.','analysis')">💰 Improve collections</button>
+  <button class="sug" onclick="askWithMode('projects','Compare all 3 projects in detail. Which needs the most attention and why?','analysis')">🏢 Project focus</button>
+  <button class="sug" onclick="askWithMode('risk','Identify and assess all risks in the current portfolio with financial exposure','risk')">⚠️ Top risks</button>
+  <button class="sug" onclick="askWithMode('action','Create a detailed weekly action plan for the CEO and leadership team','action')">🎯 CEO action plan</button>
+  <button class="sug" onclick="askWithMode('forecast','Forecast portfolio performance for the next 3 months with and without corrective action','forecast')">📈 3-month forecast</button>
+</div>
+
+<!-- CHAT -->
+<div class="chat" id="chat">
+  <div class="msg">
+    <div class="av ai">🧠</div>
+    <div class="mc">
+      <div class="bbl">
+        <strong>Welcome to your Real Estate AI Analyst.</strong><br><br>
+        I have full access to your live Microsoft Fabric dashboard data — contracted values, collection rates, project progress, aging installments, and agent performance.<br><br>
+        Choose a mode above, click a suggested question, or type anything about your portfolio.
+      </div>
+      <div class="mt">Real Estate Intelligence · Microsoft Fabric</div>
+    </div>
+  </div>
+</div>
+
+<!-- INPUT BAR -->
+<div class="ibar">
+  <div class="iw">
+    <input id="inp" placeholder="Ask about your portfolio data..." onkeydown="if(event.key==='Enter'){event.preventDefault();send()}"/>
+    <div class="sp" id="sp"></div>
+    <button class="sbtn" id="sbtn" onclick="send()">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+      Send
+    </button>
+  </div>
+</div>
+
+<script>
+const API_KEY = sessionStorage.getItem("groq_key") || "";
+const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const MODEL   = "llama-3.3-70b-versatile";
+
+const KPI = `LIVE REAL ESTATE PORTFOLIO — Microsoft Fabric Dashboard
+
+SALES: Contracted YTD EGP 95.3M (63% of EGP 150M target, +18% YoY)
+Units 96/160 sold (60% occupancy) | Available 43 units = EGP 27M
+Sales velocity 5.3/mo | Sellout est 8 months | Avg deal EGP 993K
+Top agent Fatima M: 14 deals EGP 18.2M
+
+COLLECTIONS: Invoiced EGP 78.4M | Collected EGP 58.1M
+Collection rate 74.1% (target 80%) | Overdue EGP 20.3M (25.9%)
+Aging: 1-30d EGP 6.1M | 31-60d EGP 4.8M | 61-90d EGP 2.9M | 90+ EGP 1.3M CRITICAL
+Health score 68/100
+
+PROJECTS:
+Nile Pearl (Cairo): 78% built, 74% sold, 3.1% over budget EGP 46.4M vs 45M
+Corniche Heights (Alexandria): 65% built, 58% sold, on budget EGP 31.8M
+Desert Rose (New Cairo): 45% built, 43% sold, under budget EGP 25.8M
+
+AGENTS: Fatima 14 deals 18.2M | Khaled 11 deals 14.9M | Sara 9 deals 11.3M | Omar 8 deals 9.8M | Layla 7 deals 8.4M`;
+
+const MODES = {
+
+  recommend:{
+    label:"💡 Recommendations",
+    trigger:"Generate 6 prioritised recommendations for this portfolio.",
+    system:`You are a senior real estate analyst. The user clicked the Recommendations tab. Respond ONLY with a valid JSON array of exactly 6 recommendation objects. No markdown fences, no explanation, no text outside the array.
+Format: [{"priority":"critical|high|medium|low","category":"Collections|Sales|Projects|Portfolio|Risk|Strategy","icon":"one emoji","title":"max 8 words","finding":"2 sentences with actual numbers from the data","action":"2 sentences of specific concrete steps","impact":"quantified expected outcome in EGP or percentage"}]`
+  },
+
+  analysis:{
+    label:"📊 Deep Analysis",
+    trigger:"Give me a deep analysis of the full portfolio.",
+    system:`You are a senior real estate financial analyst. The user clicked the Deep Analysis tab. Write a comprehensive structured analysis using ** for bold section headers. Cover ALL of these sections in order:
+
+**Sales Performance**
+Assess contracted value vs target, sales velocity, unit mix, agent productivity. Use actual numbers.
+
+**Collections Health**
+Analyse collection rate gap, aging breakdown, overdue risk by bucket. Use actual EGP figures.
+
+**Project Portfolio**
+Assess each project individually: Nile Pearl, Corniche Heights, Desert Rose. Construction %, sell-through %, budget status.
+
+**Key Opportunities**
+Top 3 specific opportunities to improve performance with expected EGP impact.
+
+**Executive Summary**
+One concise paragraph — overall portfolio health, top priority, and recommended focus for this week.
+
+Be specific, direct, and reference actual numbers throughout.`
+  },
+
+  action:{
+    label:"⚡ Action Plan",
+    trigger:"Create a weekly action plan for the leadership team.",
+    system:`You are a COO creating a detailed weekly action plan. The user clicked the Action Plan tab. Format the response as a 5-day plan from Sunday to Thursday.
+
+For EACH day use this exact format:
+**[Day name]**
+Task 1: [specific task] → Owner: [role] → Expected outcome: [result]
+Task 2: [specific task] → Owner: [role] → Expected outcome: [result]
+
+Rules:
+- Every task must reference actual KPI numbers (e.g. "call the 12 clients with 31-60 day overdue EGP 4.8M")
+- Owners must be real roles: CFO, Sales Director, Project Manager, CEO, Finance Team, Legal Team
+- Expected outcomes must be quantified where possible
+- No generic advice — every task must be specific and actionable`
+  },
+
+  risk:{
+    label:"⚠️ Risk Assessment",
+    trigger:"Assess all risks in the current portfolio.",
+    system:`You are a real estate risk manager. The user clicked the Risk Assessment tab. Identify and assess exactly 5 risks visible in the KPI data.
+
+For EACH risk use this exact format:
+**[RATING] — [Risk Title]**
+💰 Financial Exposure: [specific EGP amount or percentage]
+📊 Evidence: [what the data specifically shows — use actual numbers]
+🛡️ Mitigation: [2-3 specific steps to reduce this risk]
+
+Ratings in order of severity: CRITICAL → HIGH → MEDIUM → LOW
+Make sure to cover: collections risk, sales risk, construction risk, cash flow risk, and at least one market or operational risk.`
+  },
+
+  forecast:{
+    label:"📈 Forecast",
+    trigger:"Forecast the portfolio performance for the next 3 months.",
+    system:`You are a real estate financial forecaster. The user clicked the Forecast tab. Provide a specific 3-month forecast covering all of the following:
+
+**Assumptions**
+List 3-4 key assumptions your forecast is based on.
+
+**Collections Forecast — Next 3 Months**
+Show a table: Month | Scenario A (no action) | Scenario B (with recommended actions) | Difference
+Use specific EGP numbers.
+
+**Sales Forecast — Next Quarter**
+Units expected to sell, projected contracted value, which projects will lead.
+
+**Collection Rate Trajectory**
+Current 74.1% → forecast month 1 → month 2 → month 3 (both scenarios)
+
+**Revenue Recognition**
+Expected GL revenue entries for next quarter based on contracts signed.
+
+**Key Risk to Forecast**
+One paragraph on what could make the forecast worse and what could make it better.`
+  },
+
+  collections:{
+    label:"💰 Improve Collections",
+    trigger:"How do we improve the collection rate from 74.1% to 80%?",
+    system:`You are a real estate collections specialist. Give a specific, detailed plan to improve the collection rate from 74.1% to the 80% target. Structure your answer using ** for bold headers:
+
+**Current Situation**
+Summarise the collection gap in EGP — exactly how much more needs to be collected to reach 80%.
+
+**Action Plan by Aging Bucket**
+For each overdue bucket give the exact EGP amount and specific action:
+- 1–30 days (EGP 6.1M): [specific action]
+- 31–60 days (EGP 4.8M): [specific action]
+- 61–90 days (EGP 2.9M): [specific action]
+- 90+ days (EGP 1.3M): [specific action — legal]
+
+**Quick Wins (This Week)**
+3 specific actions that can be done immediately to collect money fast.
+
+**Technology & Process**
+How to use D365 CE and Power Automate to automate reminders and escalations.
+
+**Expected Timeline**
+Month 1, Month 2, Month 3 — what collection rate is achievable with these actions.`
+  },
+
+  projects:{
+    label:"🏢 Project Focus",
+    trigger:"Compare all 3 projects. Which needs the most attention and why?",
+    system:`You are a real estate project analyst. Compare all 3 projects in detail and identify which needs the most attention. Use ** for bold headers:
+
+**Nile Pearl Residences (Cairo)**
+Construction: 78% | Sold: 74% | Budget: 3.1% over (EGP 46.4M vs 45M budget)
+Assess: sell-through pace, budget risk, handover timeline, recommended actions.
+
+**Corniche Heights (Alexandria)**
+Construction: 65% | Sold: 58% | Budget: on budget (EGP 31.8M)
+Assess: sell-through pace, risk level, recommended actions.
+
+**Desert Rose Villa Estate (New Cairo)**
+Construction: 45% | Sold: 43% | Budget: under budget (EGP 25.8M vs 28M)
+Assess: sell-through pace, cashflow risk at handover, recommended actions.
+
+**Priority Ranking**
+Rank 1 to 3 — which project needs the most urgent attention and exactly why.
+
+**Recommended Actions per Project**
+2–3 specific actions for each project this month.
+
+**Overall Portfolio Assessment**
+One paragraph summary of the portfolio construction and sales health.`
+  }
+};
+
+let mode='recommend', busy=false;
+
+function setMode(m,btn){
+  mode=m;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  // Auto-trigger the default question for this mode
+  ask(MODES[m].trigger);
+}
+
+function askWithMode(m, q, tabMode){
+  // Set the mode for this question
+  mode = m;
+  // Highlight the matching tab if tabMode provided
+  if(tabMode){
+    const tabMap = {recommend:0, analysis:1, action:2, risk:3, forecast:4};
+    const idx = tabMap[tabMode];
+    if(idx !== undefined){
+      document.querySelectorAll('.tab').forEach((t,i)=>{
+        t.classList.toggle('on', i===idx);
+      });
+    }
+  }
+  document.getElementById('inp').value = q;
+  send();
+}
+function ask(q){document.getElementById('inp').value=q;send()}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+function fmt(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}
+
+function buildCards(recs){
+  const CC={Collections:'#0066cc',Sales:'#00c853',Projects:'#ff6f00',Portfolio:'#00d4ff',Risk:'#e53935',Strategy:'#9c27b0'};
+  let h=`<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gray-600);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">
+    Based on live Fabric dashboard · ${new Date().toLocaleDateString('en-GB')}
+  </div><div class="recs">`;
+  recs.forEach(r=>{
+    const c=CC[r.category]||'#9c27b0';
+    const pc={critical:'pc',high:'ph',medium:'pm',low:'pl'}[(r.priority||'medium').toLowerCase()]||'pm';
+    h+=`<div class="rc" style="border-top-color:${c}">
+      <div class="rt">
+        <span class="ri">${r.icon||'📊'}</span>
+        <span class="rcat" style="color:${c}">${esc(r.category)}</span>
+        <span class="rpri ${pc}">${esc(r.priority)}</span>
+      </div>
+      <div class="rb">
+        <div class="rcol"><div class="rcl">Finding</div><div class="rtl">${esc(r.title)}</div><div class="rct">${esc(r.finding)}</div></div>
+        <div class="rcol"><div class="rcl">Recommended action</div><div class="rct">${esc(r.action)}</div></div>
+      </div>
+      ${r.impact?`<div class="rimp">📈 ${esc(r.impact)}</div>`:''}
+    </div>`;
+  });
+  return h+'</div>';
+}
+
+function addMsg(role,html,isHTML){
+  const chat=document.getElementById('chat');
+  const d=document.createElement('div');
+  d.className='msg'+(role==='user'?' u':'');
+  const av=`<div class="av ${role==='user'?'u':'ai'}">${role==='user'?'👤':'🧠'}</div>`;
+  const bbl=`<div class="bbl">${isHTML?html:esc(html)}</div>`;
+  const mt=`<div class="mt">${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  d.innerHTML=role==='user'?`${bbl}${mt}${av}`:`${av}<div class="mc">${bbl}${mt}</div>`;
+  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;
+}
+
+function showTyping(){
+  const chat=document.getElementById('chat');
+  const d=document.createElement('div');d.id='typing';d.className='typing';
+  d.innerHTML=`<div class="av ai">🧠</div><div class="tb"><div class="td-row"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
+  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;
+}
+function hideTyping(){const t=document.getElementById('typing');if(t)t.remove()}
+
+async function send(){
+  if(busy)return;
+  const inp=document.getElementById('inp');
+  const q=inp.value.trim();if(!q)return;
+  inp.value='';busy=true;
+  document.getElementById('sbtn').disabled=true;
+  document.getElementById('sp').classList.add('on');
+  addMsg('user',q,false);showTyping();
+  try{
+    const res=await fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+API_KEY},
+      body:JSON.stringify({
+        model:MODEL,
+        messages:[
+          {role:'system',content:MODES[mode].system},
+          {role:'user',content:'DASHBOARD DATA:\n'+KPI+'\n\nQUESTION: '+q}
+        ],
+        max_tokens:1200,temperature:0.7
+      })
+    });
+    if(!res.ok){const err=await res.json();throw new Error(err.error?.message||'HTTP '+res.status)}
+    const data=await res.json();
+    const raw=(data.choices?.[0]?.message?.content||'').trim();
+    hideTyping();
+    if(mode==='recommend'){
+      try{
+        const clean=raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+        const match=clean.match(/\[[\s\S]*\]/);
+        if(match){addMsg('ai',buildCards(JSON.parse(match[0])),true);return;}
+      }catch(e){}
+    }
+    addMsg('ai',fmt(raw),true);
+  }catch(err){
+    hideTyping();
+    addMsg('ai','⚠️ Error: '+err.message,false);
+  }finally{
+    busy=false;
+    document.getElementById('sbtn').disabled=false;
+    document.getElementById('sp').classList.remove('on');
+    document.getElementById('chat').scrollTop=99999;
+  }
+}
+</script>
+</body>
+</html>
